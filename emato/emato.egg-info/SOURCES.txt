@@ -1,0 +1,7 @@
+setup.py
+emato/__init__.py
+emato.egg-info/PKG-INFO
+emato.egg-info/SOURCES.txt
+emato.egg-info/dependency_links.txt
+emato.egg-info/top_level.txt
+emato/obj/__init__.py
