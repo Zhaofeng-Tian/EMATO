@@ -49,7 +49,7 @@ class Param:
         # NLP
         self.w3 = 2.0
 
-        self.jmax = 1
+        self.jerkmax = 10
 
         # SQP 
         self.max_iteration = 10
@@ -116,7 +116,7 @@ class TruckParam:
 
         self. N = int(self.prediction_time / self.dt)
         self.frmin = 0.058 # idoling fuel rate
-        self.jmax = 1
+        self.jerkmax = 5
         # QP solver weights
         self.w1 = 0.1
         self.w2 = 5.0
@@ -129,7 +129,7 @@ class TruckParam:
 
         # ACC setting
         self.T = 1.5 # Time headway in ACC process
-        self.dmin = 5; self.dmax = 100
+        self.dmin = 50; self.dmax =300
         
 
         # Car dynamics

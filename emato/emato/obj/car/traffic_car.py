@@ -10,7 +10,7 @@ class TrafficCar:
         self.speed = speed
         self.length = length
         self.width = width
-        self.history_length = 20
+        self.history_length = 100
         self.position_history = []
         self.yaw_history = []
         s,d = sd
@@ -41,6 +41,11 @@ class TrafficCar:
     def set_traj(self, future_sd_points):
         self.furture_sd_points = []
         self.future_traj = [self.road.frenet_to_global(s, d) for s, d in future_sd_points]
+        self.x, self.y, self.yaw = self.future_traj[0]
+        self.pose_history.append(self.future_traj[0])
+    
+    def set_1d_traj(self, future_s_points):
+        self.future_traj = [(s,0,0) for s in future_s_points]
         self.x, self.y, self.yaw = self.future_traj[0]
         self.pose_history.append(self.future_traj[0])
         
