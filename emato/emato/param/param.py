@@ -17,6 +17,7 @@ class Param:
         self.dinit = 50
         # ACC setting
         self.T = 1.5 # Time headway in ACC process
+        self.accT = 1.5
         self.dmin = 10; self.dmax = 200.
 
         if self.cycle == 'HWFET':
@@ -43,6 +44,8 @@ class Param:
             
         self. N = int(self.prediction_time / self.dt)
         self.frmin = 0.052 # idoling fuel rate
+
+        self.quintic_w = (0.01, 200,0.005)
         # QP solver weights
         self.w1 = 0.1
         self.w2 = 5
@@ -87,11 +90,13 @@ class TruckParam:
         self.gd_profile_type = "flat"
         # speed profile: 'HWFET', 'EUDC'
         self.cycle = cycle
+        self.dt = 0.1
         self.use_gd_prediction =True
         # Simulation global settings
         self.prediction_time = 5
-        self.dt = 0.1
-        self.dinit = 50
+        self.N = int(self.prediction_time / self.dt)
+        
+        self.dinit = 20
         if self.cycle == 'HWFET':
             self.ts = 12
             self.te = 750
@@ -114,9 +119,12 @@ class TruckParam:
             self.ts = 160
             self.te = 1000
 
-        self. N = int(self.prediction_time / self.dt)
+        
         self.frmin = 0.058 # idoling fuel rate
         self.jerkmax = 5
+
+        # Quitic weights
+        self.quintic_w = (10, 5,10)
         # QP solver weights
         self.w1 = 0.1
         self.w2 = 5.0
@@ -128,6 +136,7 @@ class TruckParam:
 
 
         # ACC setting
+        self.accT = 1.5
         self.T = 1.5 # Time headway in ACC process
         self.dmin = 50; self.dmax =300
         

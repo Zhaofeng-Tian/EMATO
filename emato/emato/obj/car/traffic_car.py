@@ -14,8 +14,10 @@ class TrafficCar:
         self.position_history = []
         self.yaw_history = []
         s,d = sd
-        d= self.lane*road.lane_width - road.lane_width
-        d= self.lane*road.lane_width
+        # d= self.lane*road.lane_width - road.lane_width
+        # d= self.lane*road.lane_width
+        d = -road.road_width/2 + road.lane_width/2 + self.lane * road.lane_width
+        print(" d: {}, road width: {}, lane width: {}, my lane: {}")
         self.s = s  # Frenet longitudinal coordinate
         self.d = d  # Frenet lateral offset
         self.road = road
@@ -26,20 +28,31 @@ class TrafficCar:
         self.future_traj = []
 
 
-    def update_position(self, dt, road):
+    def traffic_update_position(self, dt):
         """
         Update the simulated traffic car with constant speed
         """
         self.s += self.speed * dt
-        x, y, yaw = road.frenet_to_global(self.s, self.d)
+        x, y, yaw = self.road.frenet_to_global(self.s, self.d)
         self.pose_history.append((x, y, yaw))
         self.x =x; self.y = y; self.yaw = yaw
         if len(self.pose_history) > self.history_length:
             self.pose_history.pop(0)
 
+    def calc_future_sd_points(self, ptime, dt):
+        """
+        Only for traffic cars
+        ptime: prediction time
+        """
+
+        self.furture_sd_points = []
+        self.furture_sd_points = []
+        for t in range(0, int(ptime / dt)):
+            future_s = self.s + self.speed * t * dt
+            self.furture_sd_points.append((future_s, self.d))
     
     def set_traj(self, future_sd_points):
-        self.furture_sd_points = []
+        self.furture_sd_points = future_sd_points
         self.future_traj = [self.road.frenet_to_global(s, d) for s, d in future_sd_points]
         self.x, self.y, self.yaw = self.future_traj[0]
         self.pose_history.append(self.future_traj[0])
@@ -75,7 +88,9 @@ class TrafficCar:
         rotated_corners = corners@rotation_matrix.T + [x,y]
         # print(" corners: ", rotated_corners)
         return rotated_corners
-
+    
+    def get_future_sd_points(self):
+        return np.array(self.furture_sd_points)
 
 
 

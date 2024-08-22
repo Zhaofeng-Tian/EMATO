@@ -1,4 +1,4 @@
-from emato.obj.poly.frenet import FrenetPath, generate_target_course
+from emato.obj.poly.frenet_old import FrenetPath, generate_target_course
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Polygon
@@ -8,12 +8,17 @@ class Road:
     def __init__(self, wx, wy, num_lanes, lane_width=4):
         self.num_lanes = num_lanes
         self.lane_width = lane_width
+        self.road_width = self.num_lanes * self.lane_width
         self.wx = wx
         self.wy = wy
         self.ts, self.tx, self.ty, self.tyaw, self.tk, self.csp = generate_target_course(wx, wy)
 
     def frenet_to_global(self, s, d):
-        index = min(range(len(self.ts)), key=lambda i: abs(self.ts[i] - s))
+        # index = min(range(len(self.ts)), key=lambda i: abs(self.ts[i] - s))
+        # ts = 0,0.1,0.2, discretized by 0.1, so index is
+        s = np.asarray(s)
+        d = np.asarray(d)
+        index = (s/0.1).astype(int)
         x_base = self.tx[index]
         y_base = self.ty[index]
         yaw_base = self.tyaw[index]
@@ -42,3 +47,10 @@ class Road:
             })
 
         return lane_lines
+
+if __name__ == "__main__":
+    wx = [0.0,  350.0, 700, 1300, 1700]
+    wy = [0.0, -100.0, 150.0, 65, 0.0]
+    road = Road(wx, wy, num_lanes = 2, lane_width=4)
+    x,y,yaw = road.frenet_to_global(np.array([100,200,300]), np.array([2,4,6]))
+    print(x,y,yaw)

@@ -8,6 +8,7 @@ class Recorder:
         self.Tsl = [] # s coords leading car 
         self.Tvl = [] # v profile leading car
         self.Tavl = [] # apparent acceleration leading car
+        self.Tjerkl = [] 
         self.Tatl = [] # traction acceleration leading car
         self.Tarl = []
         self.Tfrl = [] # fuel rate leading car ml/s
@@ -18,6 +19,7 @@ class Recorder:
         self.Tse = [] # s coords ego car 
         self.Tve = [] # v profile ego car
         self.Tave = [] # apparent acceleration ego car
+        self.Tjerke = []
         self.Tate = [] # traction acceleration ego car
         self.Tare = []
         self.Tfre = [] # fuel rate ego car ml/s
@@ -50,9 +52,35 @@ class Recorder:
         self.Tfce.append(fce)
         self.Tthetae.append(thetae)
 
+    def recordj(self, state_l, state_e, t):
+        sl,vl,avl,jerkl,atl,arl,frl,fcl,thetal = state_l
+        se,ve,ave,jerke,ate,are,fre,fce,thetae = state_e
+
+        self.Tt.append(t)
+        self.Tsl.append(sl)
+        self.Tvl.append(vl)
+        self.Tavl.append(avl)
+        self.Tjerkl.append(jerkl)
+        self.Tatl.append(atl)
+        self.Tarl.append(arl)
+        self.Tfrl.append(frl)
+        self.Tfcl.append(fcl)
+        self.Tthetal.append(thetal)
+
+        self.Tse.append(se)
+        self.Tve.append(ve)
+        self.Tave.append(ave)
+        self.Tjerke.append(jerke)
+        self.Tate.append(ate)
+        self.Tare.append(are)
+        self.Tfre.append(fre)
+        self.Tfce.append(fce)
+        self.Tthetae.append(thetae)
+
     def record_solve_info(self, info):
         self.Tst.append(info['solve_time'])
         self.Teit.append(info['executed_its'])
+
 
 
     def plot_trajectory(self):
@@ -100,10 +128,17 @@ class Recorder:
         plt.plot(self.Tt, self.Tarl, label="Leading Resistance Acceleration")
         plt.ylabel('Resistance Acceleration')
         
-        plt.subplot(4, 2, 8)
-        plt.plot(self.Tt, self.Tthetae, label="Ego Gradient")
-        plt.plot(self.Tt, self.Tthetal, label="Leading Gradient")
-        plt.ylabel('Gradient')
+        print("lengtg of jerk", len(self.Tjerke))
+        if len(self.Tjerke) == 0:
+            plt.subplot(4, 2, 8)
+            plt.plot(self.Tt, self.Tthetae, label="Ego Gradient")
+            plt.plot(self.Tt, self.Tthetal, label="Leading Gradient")
+            plt.ylabel('Gradient')
+        else:
+            plt.subplot(4, 2, 8)
+            plt.plot(self.Tt, self.Tjerke, label="Ego Jerk")
+            plt.plot(self.Tt, self.Tjerkl, label="Leading Jerk")
+            plt.ylabel('Jerk [m/s^3]')
 
         plt.tight_layout()
         plt.show()        

@@ -302,7 +302,7 @@ def plot_traj(a, traj, al = 0.5, single_color = 'yellow', if_single_color = True
     a[0][0].plot(traj.Traj_t,traj.Traj_s, clist[0], alpha = al)
     a[0][1].plot(traj.Traj_t,traj.Traj_v, clist[1], alpha = al)
     a[0][2].plot(traj.Traj_t,traj.Traj_a, clist[2], alpha = al)
-    a[0][3].plot(traj.Traj_t,traj.Traj_j, clist[3], alpha = al)
+    a[0][3].plot(traj.Traj_t,traj.Traj_jerk, clist[3], alpha = al)
     a[0][4].plot(traj.Traj_t,traj.Traj_theta, clist[4], alpha = al)
     a[1][0].plot(traj.Traj_t,traj.Traj_at, clist[5], alpha = al)
     a[1][1].plot(traj.Traj_t,traj.Traj_ar, clist[6], alpha = al)
@@ -313,7 +313,7 @@ def plot_traj(a, traj, al = 0.5, single_color = 'yellow', if_single_color = True
 # # Note: When implementing this, ensure the plotting code is updated to handle the finer time resolution if 'plot=True'.
 if __name__ == "__main__":
     # 'HWFET', 'EUDC
-    profile = get_leading_profile(cycle='EUDC', plot = True)
+    profile = get_leading_profile(cycle='HWFET', plot = True)
     print("time: ", profile["time"])
     print("acceleration: ", profile["acceleration_mps2"])
     print("len of acceleration: ", len(profile["acceleration_mps2"]))
