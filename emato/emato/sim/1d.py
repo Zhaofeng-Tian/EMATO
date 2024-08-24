@@ -34,7 +34,7 @@ def main(if_plot, solver_type):
     param.dinit = 50
     param.dmin = 10
     param.dmax = 200
-    param.prediction_time = 1
+    param.prediction_time = 5
     print("param.dt: ",param.dt)
     param.N = int(param.prediction_time / param.dt)
 
@@ -80,7 +80,7 @@ def main(if_plot, solver_type):
     ax.plot([wx[0], wx[1]], [-lane_width/2, -lane_width/2], color='gray', linewidth=2)
     ax.plot([wx[0], wx[1]], [lane_width/2, lane_width/2], color='gray', linewidth=2)
 
-    for i in range(int(10 * param.ts), int(10 * param.te)):
+    for i in range(int(param.ts/param.dt), int(param.te/param.dt)):
     # for i in range(int(10 * param.ts), int(10 * param.ts + 10)):
         """
         A. Trajectory solving

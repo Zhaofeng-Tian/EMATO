@@ -1,3 +1,4 @@
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
@@ -20,11 +21,16 @@ class TrafficCar:
         print(" d: {}, road width: {}, lane width: {}, my lane: {}")
         self.s = s  # Frenet longitudinal coordinate
         self.d = d  # Frenet lateral offset
+        self.s_d = None # set it for ego car
+        self.s_dd = None
+        self.d_d = None
+        self.d_dd = None
+
         self.road = road
         x, y, yaw = self.road.frenet_to_global(s, d)
         self.x =x; self.y = y; self.yaw = yaw
         self.pose_history = [(x, y,yaw)]
-        self.furture_sd_points = []
+        self.future_sd_points = []
         self.future_traj = []
 
 
@@ -39,23 +45,28 @@ class TrafficCar:
         if len(self.pose_history) > self.history_length:
             self.pose_history.pop(0)
 
-    def calc_future_sd_points(self, ptime, dt):
+    def calc_traffic_future_sd_points(self, ptime, dt):
         """
         Only for traffic cars
         ptime: prediction time
         """
-
-        self.furture_sd_points = []
-        self.furture_sd_points = []
-        for t in range(0, int(ptime / dt)):
+        self.future_sd_points = []
+        # print(" ptim is ", round(ptime/dt))
+        for t in range(0, round(ptime / dt)):
             future_s = self.s + self.speed * t * dt
-            self.furture_sd_points.append((future_s, self.d))
+            self.future_sd_points.append((future_s, self.d))
+        # print("lengh is: ",len(self.future_sd_points))
     
-    def set_traj(self, future_sd_points):
-        self.furture_sd_points = future_sd_points
-        self.future_traj = [self.road.frenet_to_global(s, d) for s, d in future_sd_points]
+    def set_xyyaw_with_sd(self):
+        self.future_sd_points = np.array(self.future_sd_points)
+        # self.future_traj = np.array((zip(self.road.frenet_to_global(self.future_sd_points[:,0],self.future_sd_points[:,1]))))
+        self.future_traj = [self.road.frenet_to_global(s,d) for s,d in self.future_sd_points]
         self.x, self.y, self.yaw = self.future_traj[0]
         self.pose_history.append(self.future_traj[0])
+
+    def set_xyyaw(self,x,y,yaw):
+        self.x,self.y,self.yaw = x, y, yaw
+        self.pose_history.append((x,y,yaw))
     
     def set_1d_traj(self, future_s_points):
         self.future_traj = [(s,0,0) for s in future_s_points]
@@ -90,8 +101,10 @@ class TrafficCar:
         return rotated_corners
     
     def get_future_sd_points(self):
-        return np.array(self.furture_sd_points)
+        return np.array(self.future_sd_points)
 
+    def set_xc(self, xc):
+        self.s,self.s_d,self.s_dd,self.d, self.d_d, self.d_dd = xc
 
 
 def plot_cars(ax, cars):

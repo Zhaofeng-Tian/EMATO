@@ -53,3 +53,37 @@ def plot_cars(ax, cars, if_arrow=False, if_plot_future = False):
             ax.add_patch(rect)
         else:
             ax.add_patch(rect)
+
+def plot_traffic_traj(ax, cars):
+    for car in cars:
+        if len(car.future_traj) == 0:
+            continue  # Skip if there are no future points
+
+        alpha_list = np.linspace(0.01, 0.3, len(car.future_traj))
+        
+        for i, future_point in enumerate(car.future_traj[::-1]):
+            future_x, future_y, future_yaw = future_point
+
+            # Define the unrotated rectangle corners relative to the car's center
+            half_length = car.length / 2.0
+            half_width = car.width / 2.0
+            corners = np.array([
+                [half_length, half_width],  # front-left
+                [half_length, -half_width],  # front-right
+                [-half_length, -half_width],  # rear-right
+                [-half_length, half_width]   # rear-left
+            ])
+
+            # Rotation matrix based on future yaw angle
+            rotation_matrix = np.array([
+                [np.cos(future_yaw), -np.sin(future_yaw)],
+                [np.sin(future_yaw), np.cos(future_yaw)]
+            ])
+
+            # Rotate and translate corners to the global position for the future point
+            rotated_corners = corners @ rotation_matrix.T + [future_x, future_y]
+
+            # Plot the polygon for the future position
+            future_rect = Polygon(rotated_corners, edgecolor='grey', facecolor='lightblue', alpha=alpha_list[i])
+            ax.add_patch(future_rect)
+            

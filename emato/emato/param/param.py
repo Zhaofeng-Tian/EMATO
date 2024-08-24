@@ -122,6 +122,10 @@ class TruckParam:
         
         self.frmin = 0.058 # idoling fuel rate
         self.jerkmax = 5
+        self.kmax = 0.1
+        self.rsafe = 1.5
+        self.desired_v = 12
+        self.desired_d = 0
 
         # Quitic weights
         self.quintic_w = (10, 5,10)
