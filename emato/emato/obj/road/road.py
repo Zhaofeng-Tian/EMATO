@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Polygon
 import math
+from scipy.interpolate import interp1d
 
 class Road:
     def __init__(self, wx, wy, num_lanes, lane_width=4):
@@ -13,18 +14,48 @@ class Road:
         self.wy = wy
         self.ts, self.tx, self.ty, self.tyaw, self.tk, self.csp = generate_target_course(wx, wy)
 
+    # def frenet_to_global(self, s, d):
+    #     # index = min(range(len(self.ts)), key=lambda i: abs(self.ts[i] - s))
+    #     # ts = 0,0.1,0.2, discretized by 0.1, so index is
+    #     s = np.asarray(s)
+    #     d = np.asarray(d)
+    #     index = (s/0.1).astype(int)
+    #     x_base = self.tx[index]
+    #     y_base = self.ty[index]
+    #     yaw_base = self.tyaw[index]
+    #     x = x_base + d * np.cos(yaw_base + np.pi / 2)
+    #     y = y_base + d * np.sin(yaw_base + np.pi / 2)
+    #     yaw = yaw_base
+    #     return x, y, yaw
+
     def frenet_to_global(self, s, d):
-        # index = min(range(len(self.ts)), key=lambda i: abs(self.ts[i] - s))
-        # ts = 0,0.1,0.2, discretized by 0.1, so index is
+        # Convert s and d to numpy arrays if they are not already
         s = np.asarray(s)
         d = np.asarray(d)
-        index = (s/0.1).astype(int)
+        
+        # Calculate the index based on the nearest lower s value
+        index = (s / 0.1).astype(int)
+        
+        # Calculate the base position and yaw at the given index
         x_base = self.tx[index]
         y_base = self.ty[index]
         yaw_base = self.tyaw[index]
-        x = x_base + d * np.cos(yaw_base + np.pi / 2)
-        y = y_base + d * np.sin(yaw_base + np.pi / 2)
+        
+        # Calculate the fractional part of s and corresponding ds
+        s_base = index * 0.1
+        ds = s - s_base
+        
+        # Adjust x_base and y_base based on the small offset ds
+        dx = ds * np.cos(yaw_base)
+        dy = ds * np.sin(yaw_base)
+        
+        # Calculate the final global coordinates
+        x = x_base + dx + d * np.cos(yaw_base + np.pi / 2)
+        y = y_base + dy + d * np.sin(yaw_base + np.pi / 2)
+        
+        # The yaw remains the same as the base yaw
         yaw = yaw_base
+        
         return x, y, yaw
 
     def plot_road(self, ax):

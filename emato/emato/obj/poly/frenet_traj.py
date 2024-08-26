@@ -79,7 +79,7 @@ class FrenetTraj:
             self.dy = np.diff(self.y); self.dy = np.append(self.dy, self.dy[-1])
             self.yaw = np.arctan2(self.dy, self.dx)
             self.dl = np.hypot(self.dx,self.dy)
-            self.l = np.cumsum(self.dl)
+            self.l = np.cumsum(self.dl); self.l = np.append(0, self.l[:-1])
             # Calculate velocity along the arc
             self.v = self.dl / dt
             # Calculate acceleration along the arc
@@ -192,19 +192,25 @@ class FrenetTraj:
         """
         Jerk
         """
-        self.flon_jerk = np.sum(self.s_ddd**2) 
-        self.flat_jerk = np.sum(self.d_ddd**2) 
-        if np.max(self.flon_jerk + self.flat_jerk) > 10**2:
+        self.flon_jerk = self.s_ddd**2
+        self.flat_jerk = self.d_ddd**2 
+        # print("flon_jerk: ", self.flon_jerk)
+        # print("flat_jerk: ", self.flat_jerk)
+        # print(np.max(self.flon_jerk + self.flat_jerk) )
+        if np.max(self.flon_jerk + self.flat_jerk) > 10**2 + 10**2:
             self.if_over_jerky = True
             self.r_jerk = np.inf
         else:
             self.if_over_jerky = False
-            self.r_jerk = self.flon_jerk + self.flat_jerk
+            self.r_jerk = np.sum(self.flon_jerk + self.flat_jerk)
 
         """
         End state: Lon s_d (longitute v) and Lat d
         """
         self.r_v = (self.s_d[-1] - desired_v)**2
+
+
+        self.r_v = np.sum((self.s_d -desired_v)**2)
         self.r_d = (self.d[-1] - desired_d)**2
 
         """
@@ -215,9 +221,9 @@ class FrenetTraj:
 
         self.r_invalid = self.r_collision+ self.r_curvature +self.r_jerk
 
-        self.r_complex1 = self.r_jerk + self.r_v + self.r_d
-
-        self.r_complex2 = self.r_jerk + self.r_v + self.r_d + 100* self.r_fe 
+        # self.r_complex1 = 0.001* self.r_jerk + self.r_v + 0.1*self.r_d
+        self.r_complex1 = 0.001* self.r_jerk + self.r_v
+        self.r_complex2 = 0.001*self.r_jerk + self.r_v  + 100* self.r_fe 
         
         # assert len(self.r_fe) == 1, "rfe len"
         # assert len(self.r_complex2) == 1, "length wrong" 
