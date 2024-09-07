@@ -162,7 +162,7 @@ class FrenetTraj:
             # print("fe: ", self.fe)
 
     
-    def calc_reward(self, traj_traffic_list, rsafe, jerkmax, kmax, desired_v, desired_d):
+    def calc_reward(self, traj_traffic_list, safe_list, jerkmax, kmax, desired_v, desired_d):
         """
         This is function only calculates the basic reward component for frenet algorithm,
         for more complex objective settings, alg.frenet.py will handle them.
@@ -171,7 +171,7 @@ class FrenetTraj:
         """
         Collision
         """
-        self.if_sd_collision, self.if_xy_collision= self.check_collision(traj_traffic_list, rsafe)
+        self.if_sd_collision, self.if_xy_collision= self.check_collision(traj_traffic_list, safe_list)
         if self.if_xy_collision:
             self.r_collision = np.inf
         else:
@@ -181,7 +181,7 @@ class FrenetTraj:
         """
         Curvature
         """
-        if any(abs(self.cur) > 3) :
+        if any(abs(self.cur) > 0.1) :
             self.if_over_curvy = True
             self.r_curvature = np.inf
         else:
@@ -197,7 +197,7 @@ class FrenetTraj:
         # print("flon_jerk: ", self.flon_jerk)
         # print("flat_jerk: ", self.flat_jerk)
         # print(np.max(self.flon_jerk + self.flat_jerk) )
-        if np.max(self.flon_jerk + self.flat_jerk) > 10**2 + 10**2:
+        if np.max(self.flon_jerk + self.flat_jerk) > jerkmax**2 + jerkmax**2:
             self.if_over_jerky = True
             self.r_jerk = np.inf
         else:
@@ -222,7 +222,7 @@ class FrenetTraj:
         self.r_invalid = self.r_collision+ self.r_curvature +self.r_jerk
 
         # self.r_complex1 = 0.001* self.r_jerk + self.r_v + 0.1*self.r_d
-        self.r_complex1 = 0.001* self.r_jerk + self.r_v
+        self.r_complex1 = 0.00* self.r_jerk + self.r_v
         self.r_complex2 = 0.001*self.r_jerk + self.r_v  + 100* self.r_fe 
         
         # assert len(self.r_fe) == 1, "rfe len"
@@ -232,7 +232,7 @@ class FrenetTraj:
 
 
 
-    def check_collision(self,traj_traffic_list, rsafe):
+    def check_collision(self,traj_traffic_list, safe_list):
         if len(traj_traffic_list) == 0:
             return(False, False)
 
@@ -245,16 +245,19 @@ class FrenetTraj:
                 traffic_x, traffic_y, _ = self.road.frenet_to_global(traffic_s, traffic_d)
                 sd_dist_square = (traffic_s - self.s)**2 + (traffic_d - self.d)**2
                 xy_dist_square = (traffic_x - self.x)**2 + (traffic_y - self.y)**2
-
+                if np.min(np.abs(traffic_s -self.s)) < safe_list['lon_safe'] and np.min(np.abs(traffic_d - self.d)) < safe_list['lat_safe']:
+                    sd_count += 1
+                    # print("min ds {} dd {}".format(np.min(np.abs(traffic_s -self.s)), np.min(np.abs(traffic_d - self.d))))
+                    # print("min dd ",np.min(np.abs(traffic_d -self.d)))
                 # print("sd_dist_squre: ", sd_dist_square)
                 # print("xy_dist_squre: ", xy_dist_square)
 
-                if np.min(sd_dist_square) < rsafe**2:
-                    sd_count += 1
-                    # print("sd collsion!!!!")
+                # if np.min(sd_dist_square) < safe_list["rsafe"]**2:
+                #     sd_count += 1
+                #     # print("sd collsion!!!!")
 
 
-                if np.min(xy_dist_square) < rsafe**2:
+                if np.min(xy_dist_square) < safe_list['rsafe']**2:
                     xy_count += 1
 
             return(sd_count>0, xy_count>0)

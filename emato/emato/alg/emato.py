@@ -165,9 +165,9 @@ class EMATO:
         
         traj_s = self.res[:self.N]
         traj_v = self.res[self.N: 2*self.N]
-        print("Traj_s: ", traj_s)
-        print("if s increasing: ", all(np.diff(traj_s)>= 0) )
-        print("Traj_v: ", traj_v)
+        # print("Traj_s: ", traj_s)
+        # print("if s increasing: ", all(np.diff(traj_s)>= 0) )
+        # print("Traj_v: ", traj_v)
         assert all(np.diff(traj_s)>= -0.01)  , " going backward detected!!"
         assert all(traj_v) >= -0.1, " V should bigger than 0!!"
 
@@ -175,7 +175,7 @@ class EMATO:
         jerk = self.res[3*self.N]
         av = self.res[4*self.N]
         ab = self.res[5*self.N]
-        print("at: ", at, " av: ", av , "ab: ", ab)
+        # print("at: ", at, " av: ", av , "ab: ", ab)
         return self.get_res()
 
     def update(self, ft, if_dynamic_vr = True):

@@ -202,9 +202,10 @@ class NLP_J:
         
         # self.J = ca.sum1(self.w1 * (self.V - self.VL)**2 + self.w2 * self.A**2 + self.w2*self.B**2 + self.w3 * self.fu)
         # self.J = 10 * ca.sum1(self.Jerk**2) + ca.sum1(self.fu)/ (self.S[-1] - self.S[0])
-        self.J = 0.1 * ca.sum1(self.Jerk**2) +\
-                 0.1 * ca.sum1(self.A**2 + self.B**2)+ \
-                 38.9 *ca.sum1(self.fu)/ (self.S[-1] - self.S[0])
+        self.J = self.w1 * ca.sum1(self.Jerk**2) +\
+                 self.w2 * ca.sum1(self.A**2 + self.B**2)+ \
+                 self.w3 *ca.sum1(self.fu)/ (self.S[-1] - self.S[0])\
+                 + 0.01*ca.sum1(self.w1 * (self.V - self.VL)**2)
         
         """
         Constraints

@@ -1,11 +1,11 @@
 import numpy as np  
 from matplotlib.patches import Polygon
 
-def plot_cars(ax, cars, if_arrow=False, if_plot_future = False):
+def plot_cars(ax, cars, if_arrow=False, if_plot_future = False, color ='lightblue'):
     for car in cars:
         # Plot the current position of the car
         rotated_corners = car.get_rotated_corners()
-        rect = Polygon(rotated_corners, edgecolor='black', facecolor='lightblue')
+        rect = Polygon(rotated_corners, edgecolor='black', facecolor=color)
         
         x, y, yaw = car.pose_history[-1]
 
@@ -19,7 +19,7 @@ def plot_cars(ax, cars, if_arrow=False, if_plot_future = False):
             )
 
         # Plot the predicted future trajectory
-        alpha_list = np.linspace(0.1, 0.6, len(car.future_traj))
+        alpha_list = np.linspace(0.00, 0.1, len(car.future_traj))
         i = 0
         # for future_point in car.future_traj:
         if if_plot_future:
@@ -47,7 +47,7 @@ def plot_cars(ax, cars, if_arrow=False, if_plot_future = False):
                 rotated_corners = corners @ rotation_matrix.T + [future_x, future_y]
 
                 # Plot the polygon for the future position
-                future_rect = Polygon(rotated_corners, edgecolor='grey', facecolor='lightblue', alpha=alpha_list[i])
+                future_rect = Polygon(rotated_corners, edgecolor='grey', facecolor=color, alpha=alpha_list[i])
                 ax.add_patch(future_rect)
                 i += 1
             ax.add_patch(rect)

@@ -56,30 +56,13 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
     wy = [0.0, 500.0, 150.0, 65.0, 0.0,-500,0]
     # wy = [0,0,0,0,0]
     road = Road(wx, wy, num_lanes=3)
-    # Road length 2116.5
-    # assert 1==2 ,"sdf"
+
     profile_altitude, profile_gradient = get_gradient_profile(feature=param.gd_profile_type)
     bs = 100 # base s
     """
     Simulated traffic cars 
     """
-    # tcar1 = TrafficCar(lane=0, sd= [bs+30,0], speed=55/3.6, road = road)
-    # tcar2 = TrafficCar(lane=0, sd = [bs-20,0], speed=55/3.6 ,road = road)
-    # tcar3 = TrafficCar(lane=1, sd = [bs+80,0], speed=50/3.6,road = road)
-    # tcar4 = TrafficCar(lane=1, sd = [bs+120,0], speed=50/3.6 ,road = road)
-    
-    # tcar5 = TrafficCar(lane=2, sd = [bs+0,0], speed=50/3.6 ,road = road)
-    # tcar6 = TrafficCar(lane=2, sd = [bs+80,0],speed=52/3.6,road = road)
-    # tcar7 = TrafficCar(lane=2, sd = [bs+120,0],speed=53/3.6 ,road = road)
-    # tcar8 = TrafficCar(lane=1, sd = [bs+150,0], speed=50/3.6 ,road = road)
-    # tcar9 = TrafficCar(lane=1, sd = [bs+180,0], speed=50/3.6 ,road = road)
-    # tcar10 = TrafficCar(lane=2, sd = [bs+130,0],speed=67/3.6 ,road = road)
-    # tcar11 = TrafficCar(lane=1, sd = [bs+210,0], speed=55/3.6 ,road = road)
-    # tcar12 = TrafficCar(lane=0, sd = [bs+170,0], speed=50/3.6 ,road = road)
-    # tcar13 = TrafficCar(lane=0, sd = [bs+200,0], speed=53/3.6 ,road = road)
-    
-    # tcars = [tcar1, tcar2, tcar3, tcar4, tcar5, tcar6, \
-    #         tcar7, tcar8, tcar9, tcar10, tcar11,tcar12,tcar13]
+
     tcars = []
     for bs in np.arange(0, 1800, 70):
         tcars.append(TrafficCar(lane=0, sd = [bs, 0], speed = 50/3.6, road = road))
@@ -132,13 +115,8 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
                         leading_car,\
                         xc,desired_v=param.desired_v, desired_d = param.desired_d)
 
-    # fig, (ax, ax2) = plt.subplots(2,1,figsize=(30, 18), )
-    fig = plt.figure(figsize=(10,4))
-    # ,width_ratios = [1,0.7],height_ratios = [1,1] 
-    gs = fig.add_gridspec(1,2 )
-    ax = fig.add_subplot(gs[0,0])
-    ax2 = fig.add_subplot(gs[0,1])
 
+    fig, ax = plt.subplots(figsize = (30,15))
     window_width = 10
     
 
@@ -168,7 +146,7 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
         traveled_s_hist.append(traveled_s)
         elevation_hist.append(profile_altitude[int(tcar_e.s)])
         ax.clear()
-        ax2.clear()
+        # ax2.clear()
         road.plot_road(ax)
         # ***** Update 
         solver.update(xc, traffic_traj_sd_list, leading_car)
@@ -268,7 +246,7 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
             ax.plot(oft2.x, oft2.y, 'orange', alpha = 1)
             ax.plot(oft3.x, oft3.y, 'green',alpha = 1)
             if not if_use_frenet_policy:
-                ax.plot(new_x, new_y, 'green')
+                ax.plot(new_x, new_y, 'red')
 
 
             # plot_traffic_traj(ax,tcars)
@@ -293,6 +271,7 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
             # Set the limits of the axes
             ax.set_xlim([oft.x[0] - 0.5 * ws + 0.4 * ws * np.cos(oft.yaw[0]), oft.x[0] + 0.5 * ws + 0.4 * ws * np.cos(oft.yaw[0])])
             # ax.set_ylim([oft.y[0] - 0.1 * ws + 0.1 * ws * np.sin(oft.yaw[0]), oft.y[0] + 0.1 * ws + 0.1 * ws * np.sin(oft.yaw[0])])
+            
             ax.set_ylim([oft.y[0] - 0.5 * ws + 0.4 * ws * np.sin(oft.yaw[0]), oft.y[0] + 0.4 * ws + 0.4 * ws * np.sin(oft.yaw[0])])
 
             # Set equal aspect ratio
@@ -300,45 +279,45 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
 
             # Customize the font properties
             # title_font = {'family': 'Times New Roman', 'size': 28, 'weight': 'bold'}
-            title_font = {'family': 'Times New Roman', 'size': 32}
-            label_font = {'family': 'Times New Roman', 'size': 10}
+            title_font = {'family': 'Times New Roman', 'size': 16}
+            label_font = {'family': 'Times New Roman', 'size': 18}
 
             # Set the title with the customized font
-            # ax.set_title(f"Highway time: {sim_time:.2f} [s]   Traveld S: {traveled_s:.2f} [m]   Altitude: {profile_altitude[int(tcar_e.s)]:.2f} [m]   V: {oft.v[0]*3.6:.3f} [km/h]", fontdict=title_font)
+            ax.set_title(f"Time: {sim_time:.2f} [s]   Traveled S: {traveled_s:.2f} [m]   Elevation: {profile_altitude[int(tcar_e.s)]:.2f} [m]   V: {oft.v[0]*3.6:.3f} [km/h]", fontdict=title_font)
 
             # Customize the axis labels with the customized font
             ax.set_xlabel('X ', fontdict=label_font)
             ax.set_ylabel('Y ', fontdict=label_font)
 
             # Customize the tick labels for the axes
-            ax.tick_params(axis='both', which='major', labelsize=10)
+            ax.tick_params(axis='both', which='major', labelsize=18)
             for tick in ax.get_xticklabels():
                 tick.set_fontname("Times New Roman")
             for tick in ax.get_yticklabels():
                 tick.set_fontname("Times New Roman")
             
-            ax2.fill_between(traveled_s_hist, elevation_hist, color = 'lightgray', edgecolor='black')
-            # ax2.set_ylabel('Elevation [m]')
-            # ax2.set_xlabel('Traveled S [m]')
-            # ax2.set_ylim([90,max(elevation_hist)])
+            # ax2.fill_between(traveled_s_hist, elevation_hist, color = 'lightgray', edgecolor='black')
+            # # ax2.set_ylabel('Elevation [m]')
+            # # ax2.set_xlabel('Traveled S [m]')
+            # # ax2.set_ylim([90,max(elevation_hist)])
+            # # ax2.set_xlim([0, max(100, traveled_s)])
+            # # Customize ax2 similar to ax
+            # ax2.set_ylabel('Elevation [m]', fontdict=label_font)
+            # ax2.set_xlabel('Traveled S [m]', fontdict=label_font)
+            # ax2.set_ylim([min(elevation_hist)-10, max(elevation_hist)+10])
             # ax2.set_xlim([0, max(100, traveled_s)])
-            # Customize ax2 similar to ax
-            ax2.set_ylabel('Elevation [m]', fontdict=label_font)
-            ax2.set_xlabel('Traveled S [m]', fontdict=label_font)
-            ax2.set_ylim([min(elevation_hist)-10, max(elevation_hist)+10])
-            ax2.set_xlim([0, max(100, traveled_s)])
             
-            ax2.tick_params(axis='both', which='major', labelsize=10)
-            for tick in ax2.get_xticklabels():
-                tick.set_fontname("Times New Roman")
-            for tick in ax2.get_yticklabels():
-                tick.set_fontname("Times New Roman")
+            # ax2.tick_params(axis='both', which='major', labelsize=10)
+            # for tick in ax2.get_xticklabels():
+            #     tick.set_fontname("Times New Roman")
+            # for tick in ax2.get_yticklabels():
+            #     tick.set_fontname("Times New Roman")
 
             # Set figure-level title (for both subplots)
-            title_font = {'family': 'Times New Roman', 'size': 50}
-            fig.suptitle(f"Highway time: {sim_time:.2f} [s]   Traveled S: {traveled_s:.2f} [m]   "
-                        f"Altitude: {profile_altitude[int(tcar_e.s)]:.2f} [m]   V: {oft.v[0]*3.6:.3f} [km/h]",
-                        fontdict=title_font)
+            # title_font = {'family': 'Times New Roman', 'size': 50}
+            # fig.suptitle(f"Highway time: {sim_time:.2f} [s]   Traveled S: {traveled_s:.2f} [m]   "
+            #             f"Elevation: {profile_altitude[int(tcar_e.s)]:.2f} [m]   V: {oft.v[0]*3.6:.3f} [km/h]",
+            #             fontdict=title_font)
 
             print("time : ", sim_time)
             # for inft in acc_invalids:
@@ -350,8 +329,13 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
             plt.pause(0.1)
             # if sim_time > 67.0 and sim_time < 73.5:
             #     plt.show()
-            # img_name = f"{sim_time:.2f}"
-            # plt.savefig('data/frenet/img2/'+img_name+'.svg')   
+            """
+            ********* Save Images here
+            """
+            img_name = f"{sim_time:.2f}"
+            plt.savefig('data/frenet/img3/'+img_name+'.svg')   
+
+
             # plt.show()
 
         # assert 1==2, "sdfad"
@@ -484,7 +468,7 @@ if __name__ == '__main__':
     for car_type in ['truck']:
         for g_type in ['rolling']:
             for r_type in [1]:
-                for if_use_frenet in [True]:
+                for if_use_frenet in [False]:
                     car_type_list.append(car_type)
                     g_type_list.append(g_type)
                     r_type_list.append(r_type)
@@ -510,8 +494,8 @@ if __name__ == '__main__':
                     }
 
                     # Save the data as a .pkl file
-                    with open('emato.data.sim.simulation_data.pkl', 'wb') as f:
-                        pickle.dump(simulation_data, f)
+                    # with open('emato.data.sim.simulation_data.pkl', 'wb') as f:
+                    #     pickle.dump(simulation_data, f)
 
                     # Optionally print all the results
                     for i in range(len(sim_time_list)):

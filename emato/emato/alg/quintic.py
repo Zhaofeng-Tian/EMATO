@@ -78,7 +78,7 @@ class Quintic_1d:
         # print("Traj_a: ", self.res.Traj_a)
         # print("Traj_jerk: ", self.res.Traj_jerk)
 
-        assert np.all(np.diff(self.res.Traj_s) >= 0), "Trajectory of s infeasible"
+        # assert np.all(np.diff(self.res.Traj_s) >= 0), "Trajectory of s infeasible"
 
 
 

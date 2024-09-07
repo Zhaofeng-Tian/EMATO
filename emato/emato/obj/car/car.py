@@ -1,6 +1,6 @@
 import numpy as np
 # from util.util import *
-from emato.param.param import Param
+from emato.param.param import CarParam, TruckParam
 class Traj:
     def __init__(self):
         self.s = 0.0
@@ -160,6 +160,7 @@ class Car_J:
         self.frmin = param.frmin
         # jerk max_t is a derivation of acceleration
         self.jerkmax_t  = param.jerkmax*self.dt
+        self.elevation = 0.
     # Leading car
     def set_state(self, s, v, av, jerk, theta,fc):
         self.s = s
@@ -174,6 +175,9 @@ class Car_J:
     
     def set_theta(self, theta):
         self.theta = theta
+    
+    def set_elevation(self, elevation):
+        self.elevation = elevation
 
     # Ego car
     # For QP:
@@ -288,7 +292,7 @@ class Car_J:
         self.fc += self.fr * self.dt
 
     def get_state(self):
-        return self.s, self.v, self.av, self.jerk, self.at, self.ar, self.fr, self.fc, self.theta
+        return self.s, self.v, self.av, self.jerk, self.at, self.ar, self.fr, self.fc, self.theta, self.elevation
 
     def get_x(self):
         return np.array([self.s, self.v, self.av, self.jerk, self.at, self.ar, self.fr, self.fc, self.theta])
@@ -303,7 +307,7 @@ class Car_J:
 
 
 if __name__ == "__main__":
-    param = Param()
+    param = CarParam()
     car = Car(param)
     s, v, av,  at, ar, fr, fc, theta = car.get_state()
     s = car.s

@@ -9,19 +9,19 @@ import pickle
 def get_leading_profile(cycle='HWFET', plot=False):
     # Load the data
     if cycle == 'HWFET':
-        data = loadmat('emato/util/CYC_HWFET.mat') 
+        data = loadmat('util/CYC_HWFET.mat') 
     elif cycle == 'EUDC':
-        data = loadmat('emato/util/CYC_EUDC.mat') 
+        data = loadmat('util/CYC_EUDC.mat') 
     elif cycle == 'INDIA_HWY':
-        data = loadmat('emato/util/CYC_INDIA_HWY_SAMPLE')
+        data = loadmat('util/CYC_INDIA_HWY_SAMPLE')
     elif cycle == 'INDIA_URBAN':
-        data = loadmat('emato/util/CYC_INDIA_URBAN_SAMPLE')
+        data = loadmat('util/CYC_INDIA_URBAN_SAMPLE')
     elif cycle == 'MANHATTAN':
-        data = loadmat('emato/util/CYC_MANHATTAN')
+        data = loadmat('util/CYC_MANHATTAN')
     elif cycle == 'NYCC':
-        data = loadmat('emato/util/CYC_NYCC')
+        data = loadmat('util/CYC_NYCC')
     elif cycle == 'NYCTRUCK':
-        data = loadmat('emato/util/CYC_NYCTRUCK')
+        data = loadmat('util/CYC_NYCTRUCK')
     else:
         raise ValueError("Data File Not Found!")
     
@@ -310,15 +310,31 @@ def plot_traj(a, traj, al = 0.5, single_color = 'yellow', if_single_color = True
     a[1][3].plot(traj.Traj_t,traj.Traj_fr, clist[8], alpha = al)
     a[1][4].plot(traj.Traj_t,traj.Traj_fc, clist[9], alpha = al)
 
-# # Note: When implementing this, ensure the plotting code is updated to handle the finer time resolution if 'plot=True'.
+def plot_traj2(a, traj, al = 0.5, single_color = 'yellow', if_single_color = True):
+    clist = ['red', 'green', 'gray', 'orange', 'purple', \
+             'green', 'red', 'black', 'gray', 'orange']
+    if if_single_color:
+        clist = [single_color for _ in range(len(clist))]
+    a[0][0].plot(traj.Traj_t,traj.Traj_s, clist[0], alpha = al)
+    a[0][1].plot(traj.Traj_t,traj.Traj_v, clist[1], alpha = al)
+    a[1][0].plot(traj.Traj_t,traj.Traj_jerk, clist[3], alpha = al)
+    a[1][1].plot(traj.Traj_t,traj.Traj_fc, clist[9], alpha = al)
+
+
+
+
+
+
+
+
 if __name__ == "__main__":
     # 'HWFET', 'EUDC
     profile = get_leading_profile(cycle='HWFET', plot = True)
-    print("time: ", profile["time"])
-    print("acceleration: ", profile["acceleration_mps2"])
-    print("len of acceleration: ", len(profile["acceleration_mps2"]))
-    print(" Leading init distance: ", profile['distance_meters'][500])
-    print(" Ego init distance: ", profile['distance_meters'][500]-100)
+    # print("time: ", profile["time"])
+    # print("acceleration: ", profile["acceleration_mps2"])
+    # print("len of acceleration: ", len(profile["acceleration_mps2"]))
+    # print(" Leading init distance: ", profile['distance_meters'][500])
+    # print(" Ego init distance: ", profile['distance_meters'][500]-100)
 
     # local_approx(profile,time_target=150, delta_time=10,dt=0.1, acc_approx = True, plot=True)
 
@@ -327,3 +343,5 @@ if __name__ == "__main__":
 
     # file = "data/car_HWFET_flat_SQP_0.1_5_5_gd_True_ptime_10.pkl"
     # rder, param = get_data(file)
+
+    # plot_elevation()

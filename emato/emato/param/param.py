@@ -1,6 +1,6 @@
 import numpy as np
 
-class Param:
+class CarParam:
     def __init__(self, cycle = 'HWFET'):
         # Solver type, choose "QP", "QP_CA", "SQP",  "NLP"
         # self.solver_type = "QP_CA"
@@ -18,7 +18,7 @@ class Param:
         # ACC setting
         self.T = 1.5 # Time headway in ACC process
         self.accT = 1.5
-        self.dmin = 10; self.dmax = 200.
+        self.dmin = 50; self.dmax = 300.
 
         if self.cycle == 'HWFET':
             self.ts = 12
@@ -54,6 +54,13 @@ class Param:
 
         self.jerkmax = 10
 
+        # self.jerkmax = 5
+        self.kmax = 0.1
+        self.rsafe = 1.5
+        self.desired_v = 12
+        self.desired_d = 0
+        self.safe_list = {'rsafe':4, 'lon_safe': 6, 'lat_safe': 3}
+
         # SQP 
         self.max_iteration = 10
        
@@ -70,10 +77,10 @@ class Param:
         self.xmin = np.array([-np.inf, self.vmin])  # Min state constraints
         self.xmax = np.array([np.inf, self.vmax])  # Max state constraints
         self.umin = 0.  # Min control input
-        self.umax = 9.    # Max control input
+        self.umax = 3.    # Max control input
         if self.solver_type == 'QP':
             self.umin = np.array([0.])
-            self.umax = np.array([9.])
+            self.umax = np.array([3.])
 
 
         # Dynamic & Fuel model
@@ -126,6 +133,7 @@ class TruckParam:
         self.rsafe = 1.5
         self.desired_v = 12
         self.desired_d = 0
+        self.safe_list = {'rsafe':4, 'lon_safe': 6, 'lat_safe': 3}
 
         # Quitic weights
         self.quintic_w = (10, 5,10)
@@ -173,6 +181,10 @@ class TruckParam:
         # self.c = np.array([ 0.07224, 0.09681, 0.001075 ])         # c0,c1,c2
         # self.o = np.array([0.146269884, 0.0102544085, -0.00092819697, 2.154232e-05, -4.242666666666667e-07])  # o0,o1,o2,o3,o4
         # self.b = np.array([0.1569, 0.0245, -0.0007415, 0.00005975])
+
+
+
+
 
 if __name__ == "__main__":
     p = Param()

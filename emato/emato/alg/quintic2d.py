@@ -24,7 +24,8 @@ class Quintic_2d:
         self.xc = xc
         self.ptime = param.prediction_time
         self.dt = self.param.dt
-        self.rsafe = param.rsafe
+        self.safe_list = param.safe_list
+    
         _, self.gd_profile = get_gradient_profile(feature=param.gd_profile_type)
         self.desired_v = desired_v
         self.desired_d = desired_d
@@ -41,6 +42,7 @@ class Quintic_2d:
         self.r_complex2s = [] # original + fuel efficiency
         self.r_complex3s = [] # only fuel efficiency
         self.solve_time = None
+        # assert self.param.jerkmax == 20, "jerk max wrong!!!"
 
     def solve(self):
         # self.feasible_candidates = []
@@ -48,9 +50,9 @@ class Quintic_2d:
         # 6-tuple states
         cs,cs_d,cs_dd,cd,cd_d,cd_dd = self.xc
         ts = time.time()
-        for gd in np.arange(-self.road.road_width/2+0.5, self.road.road_width/2-0.5, 1) :
+        for gd in np.arange(-self.road.road_width/2+1, self.road.road_width/2-1, 1) :
             # for gs in np.arange(cs+self.desired_v*self.ptime - 30, cs+self.desired_v*self.ptime+30, 1):
-            for gs in np.arange(cs+20, cs+self.desired_v*self.ptime+30, 5):
+            for gs in np.arange(cs+20, cs+self.desired_v*self.ptime+50, 5):
                 xg = [gs,self.desired_v,0,gd,0,0]
 
                 # Create Frenet traj obj
@@ -62,7 +64,7 @@ class Quintic_2d:
                         gd_profile=self.gd_profile)
 
                 # Calc reward
-                ft.calc_reward(self.traj_traffic_list, self.rsafe, self.param.jerkmax, self.param.kmax, self.desired_v, self.desired_d)
+                ft.calc_reward(self.traj_traffic_list, self.safe_list, self.param.jerkmax, self.param.kmax, self.desired_v, self.desired_d)
                 if ft.r_invalid >= 1000:
                     self.invalid_candidates.append(ft)
                     
@@ -87,7 +89,7 @@ class Quintic_2d:
                         ptime = self.ptime, dt = self.dt, \
                         gd_profile=self.gd_profile)
                 
-                ft.calc_reward(self.traj_traffic_list, self.rsafe, self.param.jerkmax, self.param.kmax, self.desired_v, self.desired_d)
+                ft.calc_reward(self.traj_traffic_list, self.safe_list, self.param.jerkmax, self.param.kmax, self.desired_v, self.desired_d)
                 
                 
                 if ft.r_invalid >= 1000:

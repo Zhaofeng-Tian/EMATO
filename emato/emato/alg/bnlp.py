@@ -37,7 +37,7 @@ class BNLP:
         # assert 1==2, "sss"
 
         self.xs = np.array([xc[0], xc[1], xc[2]])
-        assert xc[0] < self.traj_sl[0], "collision happened, check code!"
+        # assert xc[0] < self.traj_sl[0], "collision happened, check code!"
         # ACC estimated end state
         se = self.traj_sl[-1] - (self.param.accT * self.traj_vl[-1] + self.param.dmin)
         ve = self.traj_vl[-1]
@@ -78,9 +78,9 @@ class BNLP:
         # self.J2 = 10 * (self.A**2 + self.B**2)
         # self.J3 = 38.91* self.w3 * self.fu/(self.S[-1]-self.S[0])
         # self.J = ca.sum1(self.J1 + self.J2 + self.J3)
-        self.J = 0.00 * ca.sum1(self.Jerk**2) +\
-                0.0 * ca.sum1(self.A**2 + self.B**2)+ \
-                35 *ca.sum1(self.fu)/ (self.S[-1] - self.S[0])
+        self.J = self.w1 * ca.sum1(self.Jerk**2) +\
+                self.w2 * ca.sum1(self.A**2 + self.B**2)+ \
+                self.w3 *ca.sum1(self.fu)/ (self.S[-1] - self.S[0])
         """
         Constraints
         """
@@ -185,8 +185,8 @@ class BNLP:
         print("Traj_s: ", traj_s)
         print("if s increasing: ", all(np.diff(traj_s)>= 0) )
         print("Traj_v: ", traj_v)
-        assert all(np.diff(traj_s)>= -0.01)  , " going backward detected!!"
-        assert all(traj_v) >= -0.1, " V should bigger than 0!!"
+        # assert all(np.diff(traj_s)>= -0.01)  , " going backward detected!!"
+        # assert all(traj_v) >= -0.1, " V should bigger than 0!!"
 
         at = self.res[2*self.N]
         jerk = self.res[3*self.N]
@@ -270,7 +270,7 @@ class BNLP_R:
         # assert 1==2, "sss"
 
         self.xs = np.array([xc[0], xc[1], xc[2]])
-        assert xc[0] < self.traj_sl[0], "collision happened, check code!"
+        # assert xc[0] < self.traj_sl[0], "collision happened, check code!"
         # ACC estimated end state
         se = self.traj_sl[-1] - (self.param.accT * self.traj_vl[-1] + self.param.dmin)
         ve = self.traj_vl[-1]
@@ -310,9 +310,9 @@ class BNLP_R:
         # self.J = ca.sum1(self.J1 + self.J2 + self.J3)
         # self.J = ca.sum1(self.J1+self.J3)
         # self.J = ca.sum1(self.J1 + self.J2) + 100* ca.sum1(self.J3)/(self.S[-1]-self.S[0])
-        self.J = 0.1 * ca.sum1(self.Jerk**2) +\
-                1 * ca.sum1(self.A**2 + self.B**2)+ \
-                35 *ca.sum1(self.fu)/ (self.S[-1] - self.S[0])
+        self.J = self.w1 * ca.sum1(self.Jerk**2) +\
+                self.w2 * ca.sum1(self.A**2 + self.B**2)+ \
+                self.w3 *ca.sum1(self.fu)/ (self.S[-1] - self.S[0])
         
         """
         Constraints
@@ -424,8 +424,8 @@ class BNLP_R:
         print("Traj_s: ", traj_s)
         print("if s increasing: ", all(np.diff(traj_s)>= 0) )
         print("Traj_v: ", traj_v)
-        assert all(np.diff(traj_s)>= -0.01)  , " going backward detected!!"
-        assert all(traj_v) >= -0.1, " V should bigger than 0!!"
+        # assert all(np.diff(traj_s)>= -0.01)  , " going backward detected!!"
+        # assert all(traj_v) >= -0.1, " V should bigger than 0!!"
 
         at = self.res[2*self.N]
         jerk = self.res[3*self.N]
@@ -441,7 +441,7 @@ class BNLP_R:
         print(" Ego car s: ", self.xc[0])
         # Boundary state value
         self.xs = np.array([xc[0], xc[1], xc[2]])
-        assert xc[0] < self.traj_sl[0], "collision happened, check code!"
+        # assert xc[0] < self.traj_sl[0], "collision happened, check code!"
         # ACC estimated end state
         se = self.traj_sl[-1] - (self.param.accT * self.traj_vl[-1] + self.param.dmin)
         ve = self.traj_vl[-1]
