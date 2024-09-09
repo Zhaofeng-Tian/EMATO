@@ -13,7 +13,7 @@ from emato.alg.bnlp import BNLP, BNLP_R
 from emato.alg.quintic import Quintic_1d, Quintic_1d_R
 from emato.util.recorder import Recorder
 from emato.util.plot import plot_cars, plot_traffic_traj
-from emato.alg.emato import EMATO
+from emato.alg.emato import EMATO, EMATO_R
 from scipy.interpolate import interp1d
 import pickle
 
@@ -147,8 +147,12 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
     traveled_l = 0
     traveled_s = 0
     traveled_s_hist = []
+    traveled_l_hist = []
     elevation_hist = []
     total_fc = 0
+    oft_jerks = []
+    emato_jerks = []
+
     average_v = 0 # along arcwarts **************************************
     feasible_candidates = []
     invalid_candidates = []
@@ -166,6 +170,7 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
     # for i in range(0, round(total_time/param.dt)):
     while traveled_s < 2200:
         traveled_s_hist.append(traveled_s)
+        traveled_l_hist.append(traveled_l)
         elevation_hist.append(profile_altitude[int(tcar_e.s)])
         ax.clear()
         ax2.clear()
@@ -232,7 +237,11 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
                 new_d_d = np.gradient(new_d, param.dt)  # Derivative of d with respect to time
                 new_s_dd = np.gradient(new_s_d, param.dt)
                 new_d_dd = np.gradient(new_d_d, param.dt)
-
+                new_s_ddd = np.gradient(new_d_dd, param.dt)
+                new_d_ddd = np.gradient(new_d_dd,param.dt)
+                print("new_s_d: ", new_s_d)
+                print("new_s_ddd:", new_s_ddd)
+                # assert 1==2 , "sdf"
                 try:
                     assert fc[-1] < oft.fc[-1], "getting worse fc!!"
                 except AssertionError as e: 
@@ -393,6 +402,7 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
                 traveled_s = oft.s[1] - start_s
                 traveled_l += oft.dl[0]
                 total_fc += oft.fr[0] * param.dt
+
             else: # Use NLP
 
                 xc = new_s[1],new_s_d[1],new_s_dd[1], new_d[1], new_d_d[1], new_d_dd[1]
@@ -401,6 +411,7 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
                 traveled_s = new_s[1] - start_s 
                 traveled_l += dl[0]
                 total_fc += fr[0]*param.dt
+
         else:
             xc = poft.s[1+invalid_count],poft.s_d[1+invalid_count],poft.s_dd[1+invalid_count],poft.d[1+invalid_count],poft.d_d[1+invalid_count],poft.d_dd[1+invalid_count]
             tcar_e.set_xc(xc)
@@ -409,14 +420,31 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
             traveled_l += oft.dl[0+invalid_count]
             total_fc += oft.fr[0+invalid_count] * param.dt
 
+        v_hist = np.diff(traveled_s_hist) / 0.1
+        # Calculate acceleration history (second derivative)
+        a_hist = np.diff(v_hist) / 0.1
+        # Calculate jerk history (third derivative)
+        jerk_hist = np.diff(a_hist) / 0.1
         print(" ********* Data display")
         print("Car: {}, Gtype: {}, Rtype: {}, NLP: {}".format(car_type, g_type, r_type, not if_use_frenet_policy))
         print("simed time: ", sim_time)
         print("traveled s: {}, l: {}, fc: {} ".format(traveled_s,traveled_l,total_fc))
         print("total fe_ds: {}, instant fe_ds: {}, instant fe: {}".format(total_fc/traveled_s,oft.fe_ds[0], oft.fe[0]))
         print("fuel rate: ", oft.fr[0:5])
-        print("r_jerk: {}, r_v: {}, r_fe: {}, r_complex2: {}, r_collision: {}, r_cur: {}, max_jerk: {}".format(oft.r_jerk, oft.r_v, oft.r_fe, oft.r_complex2,oft.r_collision, oft.r_curvature, np.max(oft.flon_jerk + oft.flat_jerk)) )
+        print("jerk:{}, lon_lat_jerk:{} ,r_jerk: {}, r_v: {}, r_fe: {}, r_complex2: {}, r_collision: {}, r_cur: {}, max_jerk: {}".format(jerk_hist if len(jerk_hist)< 4 else jerk_hist[-1], oft.flon_jerk[0] + oft.flat_jerk[0],  oft.r_jerk, oft.r_v, oft.r_fe, oft.r_complex2,oft.r_collision, oft.r_curvature, np.max(oft.flon_jerk + oft.flat_jerk)) )
+        # print("tl_hist: {}, v_hist: {}, a_hist:{} ".format(traveled_s_hist, v_hist, a_hist))
+        # print("jerk hist {},  jerk squre {} ".format(jerk_hist, jerk_hist**2))
+        print("l based average jerk square: {}".format(np.sum(jerk_hist**2)/ len(jerk_hist)) )
+        print("jerk oft sd: ", oft.flon_jerk[0] + oft.flat_jerk[0])
+        # print("jerk emato sd: ", (new_s_ddd**2)[0] +(new_d_ddd**2)[0])
 
+        if if_use_frenet:
+            oft_jerks.append(oft.flon_jerk[0] + oft.flat_jerk[0])
+        else:
+            oft_jerks.append((new_s_ddd**2)[0] +(new_d_ddd**2)[0])
+
+        # print("########### average oft jerk: ", np.sum(oft_jerks)/len(oft_jerks))
+        # print("########### average emato jerk: ", np.sum(emato_jerks)/len(emato_jerks))
         ci = (oft.s/0.1).astype(int)
         
 
@@ -457,10 +485,10 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
     # with open('data/frenet/v_list.pkl', 'wb') as f:
     #     pickle.dump(v_list, f)
 
-    return sim_time, traveled_s, traveled_l, total_fc, total_fc/traveled_s
+    return sim_time, traveled_s, traveled_l, total_fc, total_fc/traveled_s, traveled_l_hist, oft_jerks
 
 if __name__ == '__main__':
-    if_plot = True
+    if_plot = False
     sim_time_list = []
     traveled_s_list = []
     traveled_l_list = []
@@ -470,6 +498,11 @@ if __name__ == '__main__':
     g_type_list = []
     r_type_list = []
     use_frenet_list = []
+
+    average_s_d_list = []
+    average_v_list = []
+    a_oft_jerk = []
+  
 
     # for car_type in ['truck']:
     #     for g_type in ['steep', 'rolling', 'flat']:
@@ -481,20 +514,38 @@ if __name__ == '__main__':
     #         for r_type in [1, 2, 3]:
     #             for if_use_frenet in [False, True]:
 
-    for car_type in ['truck']:
-        for g_type in ['rolling']:
-            for r_type in [1]:
-                for if_use_frenet in [True]:
+    # for car_type in ['truck']:
+    #     for g_type in ['rolling']:
+    #         for r_type in [1]:
+    #             for if_use_frenet in [False]:
+    
+    # Quantative 
+    for car_type in ['truck', 'car']:
+        for g_type in ['steep','rolling','flat']:
+            for r_type in [1, 2, 3]:
+                for if_use_frenet in [False, True]:
                     car_type_list.append(car_type)
                     g_type_list.append(g_type)
                     r_type_list.append(r_type)
-                    st, ts, tl, tfc, tfe = frenet_sim(if_plot=if_plot, car_type=car_type, g_type=g_type, r_type=r_type, if_use_frenet_policy=if_use_frenet)
+                    st, ts, tl, tfc, tfe, tl_hist, oft_jerks = frenet_sim(if_plot=if_plot, car_type=car_type, g_type=g_type, r_type=r_type, if_use_frenet_policy=if_use_frenet)
                     sim_time_list.append(st)
                     traveled_s_list.append(ts)
                     traveled_l_list.append(tl)
                     total_fc_list.append(tfc)
                     total_fe_ds_list.append(tfe)
                     use_frenet_list.append(if_use_frenet)
+
+                    average_s_d_list.append(ts/st)
+                    average_v_list.append(tl/st)
+                    # Calculate velocity history (first derivative)
+                    v_hist = np.diff(tl_hist) / 0.1
+                    # Calculate acceleration history (second derivative)
+                    a_hist = np.diff(v_hist) / 0.1
+                    # Calculate jerk history (third derivative)
+                    jerk_hist = np.diff(a_hist) / 0.1
+
+                    a_oft_jerk.append(np.sum(oft_jerks)/len(oft_jerks))
+                    # a_emato_jerk.append(np.sum(emato_jerks)/len(emato_jerks))                
 
                     # Store the data in a dictionary
                     simulation_data = {
@@ -506,11 +557,17 @@ if __name__ == '__main__':
                         "traveled_l": traveled_l_list,
                         "total_fc": total_fc_list,
                         "total_fe_ds": total_fe_ds_list,
-                        "if_use_frenet": use_frenet_list
+                        "if_use_frenet": use_frenet_list,
+                        "s_d":average_s_d_list,
+                        "v":average_v_list,
+                        "oft_jerk":a_oft_jerk
                     }
 
                     # Save the data as a .pkl file
-                    with open('emato.data.sim.simulation_data.pkl', 'wb') as f:
+                    file_route = 'data/frenet/tests/'
+                    # file_name = file_route +f'{car_type}_{g_type}_{r_type}_{if_use_frenet}.pkl'
+                    file_name = file_route + 'total.pkl'
+                    with open(file_name, 'wb') as f:
                         pickle.dump(simulation_data, f)
 
                     # Optionally print all the results
@@ -525,6 +582,9 @@ if __name__ == '__main__':
                         print(f"Total FC: {total_fc_list[i]}")
                         print(f"Total FE DS: {total_fe_ds_list[i]}")
                         print(f"If Frenet:{use_frenet_list[i]}")
+                        print(f"Average s_d: {average_s_d_list[i]}")
+                        print(f"Average v: {average_v_list[i]}")
+                        print(f"Average oft jerk: {a_oft_jerk[i]}")
                         print("------------------------\n")
 """
 To do:

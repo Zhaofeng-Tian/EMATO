@@ -287,7 +287,7 @@ class Car_J:
 
     def step(self): # state transition
         self.s = self.s + self.v*self.dt + 0.5*self.av*self.dt**2
-        self.v = self.v + self.av*self.dt
+        self.v = max(0, self.v + self.av*self.dt)
         self.av = self.av + self.jerk * self.dt
         self.fc += self.fr * self.dt
 

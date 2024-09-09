@@ -204,7 +204,8 @@ def sim_acc(if_plot, car_type, cycle_type, g_type, solver_type, w, if_save):
     print("Average jerk: ", np.sum(recorder.Tjerke)/ len(recorder.Tjerke))
     print("Average speed: ", np.sum(recorder.Tve)/ len(recorder.Tve))
     print("Fc / road length: ml/ meters ", recorder.Tfce[-1]/(recorder.Tse[-1]-recorder.Tse[0]) )
-    recorder.plot_trajectory()
+    
+    # recorder.plot_trajectory()
 
     data_to_save = {
         'recorder': recorder,
@@ -216,7 +217,7 @@ def sim_acc(if_plot, car_type, cycle_type, g_type, solver_type, w, if_save):
     
     # Serialize the data and save it to a file
     # file_name = self.save_route + file_name
-    route_head = 'data/acc/tests/'
+    route_head = 'data/acc/tests2/'
     file_name = route_head + file_name
     if if_save:
         with open(file_name, 'wb') as file:
@@ -226,11 +227,12 @@ def sim_acc(if_plot, car_type, cycle_type, g_type, solver_type, w, if_save):
     total_time = recorder.Tt[-1] - recorder.Tt[0]
     traveled_s = recorder.Tse[-1] - recorder.Tse[0]
     total_fc = recorder.Tfce[-1] - recorder.Tfce[0]
-    return total_time, traveled_s, total_fc, total_fc/traveled_s
+    return total_time, traveled_s, total_fc, total_fc/traveled_s, recorder
     
 
 if __name__ == '__main__':
-    if_plot = True
+    if_plot = False
+    if_save = False
     sim_time_list = []
     traveled_s_list = []
     total_fc_list = []
@@ -239,6 +241,11 @@ if __name__ == '__main__':
     cycle_list = []
     g_type_list = []
     solver_type_list = []
+
+    w_list = []
+    av_list = []
+    aj_list = []
+    afe_list = []
     # use_frenet_list = []
 
     # for car_type in ['truck', 'car']:
@@ -257,33 +264,43 @@ if __name__ == '__main__':
     #             for solver_type in ['Quintic_1d', 'BNLP', 'BNLP_R']:
 
            
-    for car_type in ['truck', 'car']:
-        for cycle_type in ['HWFET','EUDC','INDIA_HWY','INDIA_URBAN','MANHATTAN','NYCC','NYCTRUCK']:
+    for car_type in ['truck']:
+        for cycle_type in ['HWFET']:
             for g_type in ['steep','rolling','flat']:
-                for solver_type in ['Quintic_1d']:
-                    tt, ts, tfc, tfe = sim_acc(if_plot=False, car_type = car_type, \
-                                                cycle_type = cycle_type, \
-                                                g_type = g_type,\
-                                                solver_type = solver_type,\
-                                                w = [1.16,14.51, 38.91],\
-                                                if_save = True)
+                for solver_type in ['BNLP_R']:
+                    for w in [[1.16,0, 0],[1.16,14.51, 0],[1.16,14.51, 38.91],[0,0,1]]:
+                        tt, ts, tfc, tfe, recorder = sim_acc(if_plot=False, car_type = car_type, \
+                                                    cycle_type = cycle_type, \
+                                                    g_type = g_type,\
+                                                    solver_type = solver_type,\
+                                                    w = w,\
+                                                    if_save = False)
 
-                    sim_time_list.append(tt)
-                    traveled_s_list.append(ts)
-                    total_fc_list.append(tfc)
-                    total_fe_ds_list.append(tfe)
-                    car_type_list.append(car_type)
-                    cycle_list.append(cycle_type)
-                    g_type_list.append(g_type)
-                    solver_type_list.append(solver_type)
-                    for i in range(len(sim_time_list)):
-                        print(f"--- Simulation {i+1} ---")
-                        print(f"Car Type: {car_type_list[i]}")
-                        print(f"Cycle Type: {cycle_list[i]}")
-                        print(f"G Type: {g_type_list[i]}")
-                        print(f"Solver Type: {solver_type_list[i]}")
-                        print(f"Simulated Time: {sim_time_list[i]}")
-                        print(f"Traveled S: {traveled_s_list[i]}")
-                        print(f"Total FC: {total_fc_list[i]}")
-                        print(f"Total FE DS: {total_fe_ds_list[i]}")
-                        print("------------------------\n")
+                        sim_time_list.append(tt)
+                        traveled_s_list.append(ts)
+                        total_fc_list.append(tfc)
+                        total_fe_ds_list.append(tfe)
+                        car_type_list.append(car_type)
+                        cycle_list.append(cycle_type)
+                        g_type_list.append(g_type)
+                        solver_type_list.append(solver_type)
+                        w_list.append(w)
+                        av_list.append(ts/tt)
+                        aj_list.append(np.sum(np.array(recorder.Tjerke)**2)/ len(recorder.Tjerke))
+                        # afe_list.append(1609.34 / (tfe * 3785.41))
+                        afe_list.append(1/tfe * 3785.41178/1609.344)
+                        for i in range(len(sim_time_list)):
+                            print(f"--- Simulation {i+1} ---")
+                            print(f"Car Type: {car_type_list[i]}")
+                            print(f"Cycle Type: {cycle_list[i]}")
+                            print(f"G Type: {g_type_list[i]}")
+                            print(f"Solver Type: {solver_type_list[i]}")
+                            print(f"Simulated Time: {sim_time_list[i]}")
+                            print(f"Traveled S: {traveled_s_list[i]}")
+                            print(f"Total FC: {total_fc_list[i]}")
+                            print(f"w: {w_list[i]}")
+                            print(f"av: {av_list[i]:.2f}")
+                            print(f"aj: {aj_list[i]:.5f}")
+                            print(f"afe: {afe_list[i]:.2f}")
+                            print("------------------------\n")
+                            

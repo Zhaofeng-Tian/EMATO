@@ -192,6 +192,9 @@ class Traj:
             self.Traj_len = len(self.Traj_t)
             self.Traj_s = p.Traj_s
             self.Traj_v = p.Traj_v
+
+            self.Traj_v = np.maximum(self.Traj_v, 0)
+
             self.Traj_a = p.Traj_a
             self.Traj_jerk = p.Traj_jerk
             self.Traj_theta = get_traj_theta(gd_profile,p.Traj_s)

@@ -19,8 +19,8 @@ import pickle
 
 import matplotlib.pyplot as plt
 
-def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
-
+def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy, if_save):
+    ws= 80
     v_list = []
     oft_v_list = []
     oft_s_d_list = []
@@ -116,7 +116,7 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
                         xc,desired_v=param.desired_v, desired_d = param.desired_d)
 
 
-    fig, ax = plt.subplots(figsize = (30,15))
+    fig, ax = plt.subplots(figsize = (9,9))
     window_width = 10
     
 
@@ -222,7 +222,8 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
         """
         ******************* Plot here ***********************
         """
-        if if_plot:
+        if if_plot and abs(sim_time-79) < 0.02:
+        # if if_plot:
         # if if_plot and (sim_time > 67.0 and sim_time < 73.5):
             # for ft in invalid_candidates:
             #     if ft.if_xy_collision or ft.if_sd_collision:
@@ -240,13 +241,18 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
             if len(acc_feasibles) > 0:
                 ax.plot(acc_feasibles[0].x, acc_feasibles[0].y, 'blue', alpha = 1)
             # Select an traj with an optimal policy
-
-
-            ax.plot(oft1.x, oft1.y, 'red', alpha = 1)
             ax.plot(oft2.x, oft2.y, 'orange', alpha = 1)
             ax.plot(oft3.x, oft3.y, 'green',alpha = 1)
-            if not if_use_frenet_policy:
-                ax.plot(new_x, new_y, 'red')
+
+            ax.plot(oft1.x, oft1.y, 'red', alpha = 1)
+            ax.plot(oft1.x, oft1.y, linestyle='None', marker='o', markerfacecolor='red', markeredgecolor='black', markersize=10, alpha=1)
+
+
+            # Set the limits of the axes
+
+
+            
+
 
 
             # plot_traffic_traj(ax,tcars)
@@ -325,18 +331,29 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
            
             print("r_jerk: {}, r_v: {}, r_collision: {}, r_cur: {}, max_jerk: {}".format(oft.r_jerk, oft.r_v, oft.r_collision, oft.r_curvature, np.max(oft.flon_jerk + oft.flat_jerk)) )
             # plt.tight_layout(rect=[0, 0, 1, 0.95])
-            plt.subplots_adjust(hspace=0.5, wspace=0.2) 
-            plt.pause(0.1)
+            # plt.subplots_adjust(hspace=0.5, wspace=0.2) 
+            # plt.pause(0.1)
             # if sim_time > 67.0 and sim_time < 73.5:
-            #     plt.show()
+            # plt.show()
+
+            old_img_name = f"{sim_time:.2f}_old"
+
+            
+             
             """
             ********* Save Images here
             """
-            img_name = f"{sim_time:.2f}"
-            plt.savefig('data/frenet/img3/'+img_name+'.svg')   
+            if not if_use_frenet_policy:
+                # ax.plot(new_x, new_y, 'lightgreen')
+                ax.plot(oft1.x, oft1.y, linestyle='None', marker='o', markerfacecolor='red', markeredgecolor='black', markersize=10, alpha=1)
+                ax.plot(new_x, new_y, linestyle='None', marker='o', markerfacecolor='lightgreen', markeredgecolor='black', markersize=10, alpha=1)
+            img_name = f"{sim_time:.2f}_new"
+            if if_save:
+                plt.savefig('data/frenet/img4/'+old_img_name+'.svg') 
+                plt.savefig('data/frenet/img4/'+img_name+'.svg')   
+            # plt.pause(0.1)
 
-
-            # plt.show()
+            plt.show()
 
         # assert 1==2, "sdfad"
 
@@ -445,6 +462,7 @@ def frenet_sim(if_plot, car_type, g_type, r_type, if_use_frenet_policy):
 
 if __name__ == '__main__':
     if_plot = True
+    if_save = False
     sim_time_list = []
     traveled_s_list = []
     traveled_l_list = []
@@ -472,7 +490,7 @@ if __name__ == '__main__':
                     car_type_list.append(car_type)
                     g_type_list.append(g_type)
                     r_type_list.append(r_type)
-                    st, ts, tl, tfc, tfe = frenet_sim(if_plot=if_plot, car_type=car_type, g_type=g_type, r_type=r_type, if_use_frenet_policy=if_use_frenet)
+                    st, ts, tl, tfc, tfe = frenet_sim(if_plot=if_plot, car_type=car_type, g_type=g_type, r_type=r_type, if_use_frenet_policy=if_use_frenet, if_save=if_save)
                     sim_time_list.append(st)
                     traveled_s_list.append(ts)
                     traveled_l_list.append(tl)

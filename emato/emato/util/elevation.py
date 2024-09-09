@@ -58,7 +58,7 @@ plt.ylabel('Elevation [m]', fontsize=25)
 # Set y-limits
 # plt.ylim([90, np.max(altitude_steep) + 10])
 plt.ylim([50, 350])
-plt.xlim([0, 10000])
+plt.xlim([0, 20000])
 # Add grid, legend, and show plot
 # plt.grid(True)
 plt.legend()

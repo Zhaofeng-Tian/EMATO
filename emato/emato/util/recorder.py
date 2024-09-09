@@ -165,7 +165,7 @@ class Recorder:
 
         plt.tight_layout()
         # Generate the filename based on the parameters
-        filename = f"car_{self.name_list['car_type']}_cycle_{self.name_list['cycle_type']}_g_{self.name_list['g_type']}_solver_{self.name_list['solver_type']}_w_{self.name_list['w']}.png"
+        filename = f"{self.name_list['car_type']}_cycle_{self.name_list['cycle_type']}_g_{self.name_list['g_type']}_solver_{self.name_list['solver_type']}_w_{self.name_list['w']}.png"
 
         # Define the save path
         save_path = f"data/acc/img/{filename}"
