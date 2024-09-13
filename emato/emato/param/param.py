@@ -46,11 +46,11 @@ class CarParam:
         self.frmin = 0.052 # idoling fuel rate
 
         self.quintic_w = (0.01, 200,0.005)
-        # QP solver weights
-        self.w1 = 0.1
-        self.w2 = 5
+
+        self.w1 = 1.16
+        self.w2 = 9.51
         # NLP
-        self.w3 = 2.0
+        self.w3 = 38.91
 
         self.jerkmax = 10
 
@@ -137,11 +137,9 @@ class TruckParam:
 
         # Quitic weights
         self.quintic_w = (10, 5,10)
-        # QP solver weights
-        self.w1 = 0.1
-        self.w2 = 5.0
-        # NLP
-        self.w3 = 10.0
+        self.w1 = 1.16
+        self.w2 = 9.51
+        self.w3 = 38.91
         # SQP 
         self.max_iteration = 10
 
