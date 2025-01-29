@@ -13,7 +13,7 @@
 - Extensive validation through case studies and quantitative analysis
 ## How to Use
 
-Install [CasADi](https://www.openai.com "Visit OpenAI's website") in your Python environment.
+Install [CasADi](https://web.casadi.org) in your Python environment.
 
 For the Frenet environment, use:
 
